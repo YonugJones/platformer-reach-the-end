@@ -50,7 +50,9 @@ function Player.new(x, y, keys)
       right = keys and keys.right or 'd',
       jump  = keys and keys.jump or 'space',
       dash  = keys and keys.dash or 'j'
-    }
+    },
+
+    hasReachedGoal       = false
   }
 end
 
@@ -102,6 +104,9 @@ local function resolveCollisions(p, goalX, goalY, platforms)
   return goalX, goalY
 end
 
+-- the goal is a single rectangle (a level typically has one). Same overlap --
+-- check as a hazard, but it doesn't reset the player - it just flags completion --
+-- and leaves what "complete" actually means up to whoever is driving the game loop --
 local function isTouchingHazard(p, hazards)
   for _, hz in ipairs(hazards) do
     if checkOverlap(p.x, p.y, p.w, p.h, hz) then
@@ -110,6 +115,22 @@ local function isTouchingHazard(p, hazards)
   end
 
   return false
+end
+
+-- checkpoints are a list of rectangles, like hazards. Touching one doesn't --
+-- reset or complete anything - it just moves where future resets send the player --
+local function checkCheckpoints(p, checkpoints)
+  for _, cp in ipairs(checkpoints) do
+    if not cp.isActivated and checkOverlap(p.x, p.y, p.w, p.h, cp) then
+      cp.isActivated = true
+      p.spawnX       = cp.x
+      p.spawnY       = cp.y
+    end
+  end
+end
+
+local function isTouchingGoal(p, goal)
+  return checkOverlap(p.x, p.y, p.w, p.h, goal)
 end
 
 local function resetToSpawn(p)
@@ -164,7 +185,7 @@ function Player.keyreleased(p, key)
   end
 end
 
-function Player.update(p, dt, platforms, hazards)
+function Player.update(p, dt, platforms, hazards, goal, checkpoints)
   p.prevX = p.x
   p.prevY = p.y
   local goalX = p.x
@@ -246,6 +267,11 @@ function Player.update(p, dt, platforms, hazards)
     p.coyoteTimer = p.coyoteTimer - dt
   end
 
+  -- checkpoint check --
+  if checkpoints then
+    checkCheckpoints(p, checkpoints)
+  end
+
   -- fall off stage check --
   if p.y >= p.fallLimitY then
     resetToSpawn(p)
@@ -254,6 +280,11 @@ function Player.update(p, dt, platforms, hazards)
   -- hazards check --
   if hazards and isTouchingHazard(p, hazards) then
     resetToSpawn(p)
+  end
+
+  -- goal check --
+  if goal and not p.hasReachedGoal and isTouchingGoal(p, goal) then
+    p.hasReachedGoal = true
   end
 
   return moveAmount
