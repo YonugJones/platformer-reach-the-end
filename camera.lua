@@ -7,7 +7,9 @@ function Camera.new()
     smooth           = 5,
     currentLookAhead = 0,
     lookAheadMax     = 150,
-    lookAheadGain    = 1.5
+    lookAheadGain    = 1.5,
+
+    hasSetY          = false
   }
 end
 
@@ -21,10 +23,15 @@ function Camera.update(cam, dt, target, moveAmount)
   end
 
   local targetX = (target.x + target.w / 2 + cam.currentLookAhead) - screenWidth / 2
-  local targetY = (target.y + target.h / 2) - screenHeight * 0.75
+  -- local targetY = (target.y + target.h / 2) - screenHeight * 0.75
 
   cam.x = cam.x + (targetX - cam.x) * cam.smooth * dt
-  cam.y = cam.y + (targetY - cam.y) * cam.smooth * dt
+
+  if not cam.hasSetY then
+    cam.y = (target.y + target.h / 2) - screenHeight * 0.75
+    cam.hasSetY = true
+  end
+  -- cam.y = cam.y + (targetY - cam.y) * cam.smooth * dt
 end
 
 function Camera.attach(cam)
