@@ -52,7 +52,8 @@ function Player.new(x, y, keys)
       dash  = keys and keys.dash or 'j'
     },
 
-    hasReachedGoal       = false
+    hasReachedGoal       = false,
+    deaths               = 0
   }
 end
 
@@ -134,9 +135,10 @@ local function isTouchingGoal(p, goal)
 end
 
 local function resetToSpawn(p)
-  p.x  = p.spawnX
-  p.y  = p.spawnY
-  p.vy = 0
+  p.x      = p.spawnX
+  p.y      = p.spawnY
+  p.vy     = 0
+  p.deaths = p.deaths + 1
 end
 
 local function tryJump(p)

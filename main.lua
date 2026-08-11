@@ -65,6 +65,9 @@ function love.draw()
   Player.draw(player)
   Camera.detach()
 
+  love.graphics.setColor(1, 1, 1)
+  love.graphics.print('Deaths: ' .. player.deaths, 10, 10)
+
   if player.hasReachedGoal then
     love.graphics.setColor(1, 1, 1)
     love.graphics.printf('Level Complete!', 0, 20, love.graphics.getWidth(), 'center')
