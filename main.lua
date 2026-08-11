@@ -1,10 +1,11 @@
-_G.love      = require 'love'
-local Player = require 'player'
-local Camera = require 'camera'
-local level  = require 'levels.level1'
+_G.love        = require 'love'
+local Player   = require 'player'
+local Camera   = require 'camera'
+local level    = require 'levels.level1'
 
 local player
 local camera
+local isPaused = false
 
 function love.load()
   player = Player.new(level.spawnX, level.spawnY)
@@ -12,21 +13,26 @@ function love.load()
 end
 
 function love.update(dt)
-  if not player.hasReachedGoal then
-    local moveAmount = Player.update(
-      player,
-      dt,
-      level.platforms,
-      level.hazards,
-      level.goal,
-      level.checkpoints
-    )
-    Camera.update(camera, dt, player, moveAmount)
-  end
+  if isPaused or player.hasReachedGoal then return end
+
+  local moveAmount = Player.update(
+    player,
+    dt,
+    level.platforms,
+    level.hazards,
+    level.goal,
+    level.checkpoints
+  )
+  Camera.update(camera, dt, player, moveAmount)
 end
 
 function love.keypressed(key)
-  if not player.hasReachedGoal then
+  if key == 'p' then
+    isPaused = not isPaused
+    return
+  end
+
+  if not isPaused and not player.hasReachedGoal then
     Player.keypressed(player, key)
   end
 end
@@ -34,6 +40,34 @@ end
 function love.keyreleased(key)
   if not player.hasReachedGoal then
     Player.keyreleased(player, key)
+  end
+end
+
+local function drawPauseMenu()
+  local screenWidth  = love.graphics.getWidth()
+  local screenHeight = love.graphics.getHeight()
+
+  love.graphics.setColor(0, 0, 0, 0.6)
+  love.graphics.rectangle('fill', 0, 0, screenWidth, screenHeight)
+
+  love.graphics.setColor(1, 1, 1)
+  love.graphics.printf('PAUSED', 0, screenHeight * 0.25, screenWidth, 'center')
+
+  local lines = {
+    'Reach the golden goalpost',
+    'Pass through the blue checkpoints to save progress',
+    "Don't fall into the red pits!",
+    '',
+    'Controls:',
+    'Move: ' .. player.keys.left .. ' / ' .. player.keys.right,
+    'Jump: ' .. player.keys.jump,
+    'Dash: ' .. player.keys.dash,
+    'Pause: p',
+  }
+
+  local startY = screenHeight * 0.4
+  for i, line in ipairs(lines) do
+    love.graphics.printf(line, 0, startY + (i - 1) * 24, screenWidth, 'center')
   end
 end
 
@@ -66,10 +100,15 @@ function love.draw()
   Camera.detach()
 
   love.graphics.setColor(1, 1, 1)
-  love.graphics.print('Deaths: ' .. player.deaths, 10, 10)
+  love.graphics.print('P: Pause/Controls', 10, 10)
+  love.graphics.print('Deaths: ' .. player.deaths, 10, 30)
 
   if player.hasReachedGoal then
     love.graphics.setColor(1, 1, 1)
     love.graphics.printf('Level Complete!', 0, 20, love.graphics.getWidth(), 'center')
+  end
+
+  if isPaused then
+    drawPauseMenu()
   end
 end
