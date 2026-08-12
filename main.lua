@@ -6,6 +6,13 @@ local level    = require 'levels.level1'
 local player
 local camera
 local isPaused = false
+local timer    = 0
+
+local function formatTime(t)
+  local minutes = math.floor(t / 60)
+  local seconds = t % 60
+  return string.format('%02d:%05.2f', minutes, seconds)
+end
 
 function love.load()
   player = Player.new(level.spawnX, level.spawnY)
@@ -14,6 +21,8 @@ end
 
 function love.update(dt)
   if isPaused or player.hasReachedGoal then return end
+
+  timer = timer + dt
 
   local moveAmount = Player.update(
     player,
@@ -102,6 +111,7 @@ function love.draw()
   love.graphics.setColor(1, 1, 1)
   love.graphics.print('P: Pause/Controls', 10, 10)
   love.graphics.print('Deaths: ' .. player.deaths, 10, 30)
+  love.graphics.print('Time: ' .. formatTime(timer), 10, 50)
 
   if player.hasReachedGoal then
     love.graphics.setColor(1, 1, 1)
