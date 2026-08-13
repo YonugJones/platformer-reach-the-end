@@ -133,10 +133,6 @@ function love.draw()
     love.graphics.rectangle('fill', level.goal.x, level.goal.y, level.goal.w, level.goal.h)
   end
 
-  -- temporary debug visual, remove once you've confirmed the path --
-  love.graphics.setColor(0.6, 0.3, 0.9)               -- purple, easy to spot
-  love.graphics.rectangle('fill', 6000, 530, 180, 80) -- the secret platform's exact coordinates
-
   Player.draw(player)
   Camera.detach()
 
