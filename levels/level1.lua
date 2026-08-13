@@ -20,8 +20,12 @@ return {
     { x = 4100, y = 500, w = 1600, h = 100 }
   },
   checkpoints  = {
-    { x = 3700, y = 200, w = 40, h = 80 }
+    { x = 3700, y = 200, w = 40, h = 80 },
   },
   goal         = { x = 6000, y = 100, w = 40, h = 50 },
-  cameraBounds = { minX = 0, maxX = 5600 }
+  cameraBounds = { minX = 0, maxX = 5600 },
+  nextLevel    = 'levels.level2',
+  exits        = {
+    { x = 6000, y = 540, w = 180, h = 160, target = 'levels.bonusLevel1' }
+  }
 }

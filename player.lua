@@ -53,7 +53,8 @@ function Player.new(x, y, keys)
     },
 
     hasReachedGoal       = false,
-    deaths               = 0
+    deaths               = 0,
+    triggeredExit        = nil
   }
 end
 
@@ -154,6 +155,15 @@ local function tryJump(p)
   end
 end
 
+local function checkExits(p, exits)
+  for _, exit in ipairs(exits) do
+    if checkOverlap(p.x, p.y, p.w, p.h, exit) then
+      return exit
+    end
+  end
+  return nil
+end
+
 function Player.keypressed(p, key)
   if key == p.keys.jump then
     if p.isWallSliding then
@@ -187,7 +197,7 @@ function Player.keyreleased(p, key)
   end
 end
 
-function Player.update(p, dt, platforms, hazards, goal, checkpoints)
+function Player.update(p, dt, platforms, hazards, goal, checkpoints, exits)
   p.prevX = p.x
   p.prevY = p.y
   local goalX = p.x
@@ -272,6 +282,11 @@ function Player.update(p, dt, platforms, hazards, goal, checkpoints)
   -- checkpoint check --
   if checkpoints then
     checkCheckpoints(p, checkpoints)
+  end
+
+  -- exit check --
+  if exits and not p.triggeredExit then
+    p.triggeredExit = checkExits(p, exits)
   end
 
   -- fall off stage check --
