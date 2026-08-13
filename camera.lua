@@ -13,18 +13,29 @@ function Camera.new()
   }
 end
 
-function Camera.update(cam, dt, target, moveAmount)
+function Camera.update(cam, dt, target, moveAmount, bounds)
   local screenWidth  = love.graphics.getWidth()
   local screenHeight = love.graphics.getHeight()
 
+  -- look ahead logic --
   if moveAmount ~= 0 then
     cam.currentLookAhead = cam.currentLookAhead + moveAmount * cam.lookAheadGain
     cam.currentLookAhead = math.max(-cam.lookAheadMax, math.min(cam.lookAheadMax, cam.currentLookAhead))
   end
 
-  local targetX = (target.x + target.w / 2 + cam.currentLookAhead) - screenWidth / 2
-  -- local targetY = (target.y + target.h / 2) - screenHeight * 0.75
+  local targetX
 
+  -- clamp logic --
+  if bounds and bounds.maxX and target.x >= bounds.maxX then
+    -- locked: fix center on the boundary, look ahead ignored entirely
+    targetX = (bounds.maxX + target.w / 2) - screenWidth / 2
+  elseif bounds and bounds.minX and target.x <= bounds.minX then
+    targetX = (bounds.minX + target.w / 2) - screenWidth / 2
+  else
+    targetX = (target.x + target.w / 2 + cam.currentLookAhead) - screenWidth / 2
+  end
+
+  -- local targetY = (target.y + target.h / 2) - screenHeight * 0.75
   cam.x = cam.x + (targetX - cam.x) * cam.smooth * dt
 
   if not cam.hasSetY then

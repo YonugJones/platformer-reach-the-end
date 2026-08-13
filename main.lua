@@ -32,7 +32,7 @@ function love.update(dt)
     level.goal,
     level.checkpoints
   )
-  Camera.update(camera, dt, player, moveAmount)
+  Camera.update(camera, dt, player, moveAmount, level.cameraBounds)
 end
 
 function love.keypressed(key)
