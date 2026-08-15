@@ -1,9 +1,8 @@
 return {
-  spawnX       = 20,
-  spawnY       = 340,
-  platforms    = {
+  spawnX    = 20,
+  spawnY    = 340,
+  platforms = {
     -- floor --
-    { x = 0, y = 400, w = 100, h = 40 }
+    { x = -800, y = 400, w = 1300, h = 140 }
   },
-  cameraBounds = { minX = 0, maxX = 5600 },
 }

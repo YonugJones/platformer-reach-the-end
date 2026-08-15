@@ -26,7 +26,7 @@ local function loadLevel(levelPath)
 end
 
 function love.load()
-  loadLevel('levels.level1')
+  loadLevel('levels.bonusLevel1')
 end
 
 function love.update(dt)
