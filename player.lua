@@ -19,6 +19,8 @@ function Player.new(x, y, keys)
     isGrounded           = false,
     coyoteTime           = 0.1,
     coyoteTimer          = 0,
+    wallCoyoteTime       = 0.1,
+    wallCoyoteTimer      = 0,
 
     spawnX               = x,
     spawnY               = y,
@@ -166,14 +168,17 @@ end
 
 function Player.keypressed(p, key)
   if key == p.keys.jump then
-    if p.isWallSliding then
+    -- wall jump --
+    if p.isWallSliding or p.wallCoyoteTimer > 0 then
       p.vy                = p.wallJumpForceY
       p.wallJumpDirection = -p.wallDirection
       p.wallJumpLockTimer = p.wallJumpLockDuration
       p.isFacingRight     = p.wallJumpDirection > 0
       p.isWallSliding     = false
       p.wallDirection     = 0
+      p.wallCoyoteTimer   = 0
     else
+      -- regular jump --
       p.jumpBufferTimer = p.jumpBuffer
       p.isJumpHeld = true
       tryJump(p)
@@ -237,7 +242,17 @@ function Player.update(p, dt, platforms, hazards, goal, checkpoints, exits)
     end
   end
 
-  if not p.isWallSliding then
+  -- if not p.isWallSliding then
+  --   p.wallDirection = 0
+  -- end
+
+  if p.isWallSliding then
+    p.wallCoyoteTimer = p.wallCoyoteTime
+  else
+    p.wallCoyoteTimer = p.wallCoyoteTimer - dt
+  end
+
+  if p.wallCoyoteTimer <= 0 then
     p.wallDirection = 0
   end
 
